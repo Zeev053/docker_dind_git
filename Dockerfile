@@ -1,17 +1,35 @@
-# Build the image
-# docker build  --progress plain -t zeevb/zdocker:dind-git-20.10.10 .
-#
-# Run the image:
-# docker run --name dind --privileged -d -e DOCKER_TLS_CERTDIR=/certs -v some-docker-certs-ca:/certs/ca -v some-docker-certs-client:/certs/client zeevb/zdocker:dind-git-19.03__1
-#
-# Run the container interactive
-# docker exec -it dind bash
+FROM docker:24.0.7-dind
 
-FROM docker:dind
+# Install dependencies
+RUN apk add --no-cache \
+    git \
+    docker-compose \
+    bash \
+    openjdk8 \
+    python3 \
+    py3-pip \
+    ca-certificates \
+    build-base \
+    libffi-dev \
+    python3-dev \
+    py3-setuptools \
+    py3-wheel \
+    py3-numpy \
+    cmake \
+    cython \
+    yaml-dev
 
-RUN apk update
-RUN apk upgrade
-RUN apk add --no-cache git
-RUN apk add --no-cache docker-compose
-RUN apk add --no-cache bash
-RUN apk add --no-cache openjdk8 # for usage in jenkins
+# Upgrade pip and create a virtual environment
+RUN python3 -m venv /workspace/venv && \
+    /workspace/venv/bin/pip install --upgrade pip --trusted-host pypi.org --trusted-host files.pythonhosted.org --cert /dev/null
+
+# Print Python version for debug
+RUN echo "Python version:" && /workspace/venv/bin/python --version
+
+# Copy your code and requirements
+WORKDIR /workspace
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN /workspace/venv/bin/pip install -r requirements.txt \
+    --trusted-host pypi.org --trusted-host files.pythonhosted.org --cert /dev/null

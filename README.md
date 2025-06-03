@@ -3,6 +3,6 @@ This image should use as slave (Jenkins) or Runner (Gitlab),
 and use docker in docker (dind)
 
 ## Build Command
-docker build -t zeevb/zdocker:dind-git-19.03__***2.1*** .  
+docker build -t zeevb053/dind:base_1.0 .  
 The "***2.1***" is tag, and should update.
 
